@@ -11,16 +11,22 @@ function preload() {
 function setup() {
   createCanvas(dstImg.width, dstImg.height);
   noLoop();
-  spacing = 20;
+  spacing = 10;
   srcImg.loadPixels();
   dstImg.loadPixels();
   srcTiles = tileImage(srcImg);
   dstTiles = tileImage(dstImg);
-  //print(srcTiles);
+  var dstTile, displayTile;
+  for(var i = 0; i < dstTiles.length; i++){
+    displayTile = getClosestTile(dstTiles[i], srcTiles);
+    //print(displayTile);
+    image(srcImg, dstTiles[i].x, dstTiles[i].y, spacing, spacing, displayTile.x, displayTile.y, spacing, spacing);
+  }
+  print("done");
 }
 
 function draw() {
-  background(220);
+  //background(220);
 }
 
 function tileImage(img){
@@ -47,10 +53,31 @@ function tileImage(img){
       var tile = {
         x: _x*spacing,
         y: _y*spacing,
-        light: light
+        light: light,
+        available: true
       }
       tiles.push(tile);
     }
   }
   return tiles;
+}
+
+function getClosestTile(dstTile, tiles){
+  var srcTile;
+  var closestTile;
+  var closestLightness = -1;
+  var index;
+  for(var i = 0; i < tiles.length; i++){
+    if(closestLightness == -1){
+      closestLightness = tiles[i].light;
+      closestTile = tiles[i];
+    }else if(tiles[i].available && abs(dstTile.light-tiles[i].light)<=closestLightness){
+      closestLightness = tiles[i].light;
+      closestTile = tiles[i];
+      index = i;
+    }
+  }
+  //print(closestTile);
+  tiles[index].available = false;
+  return closestTile;
 }
